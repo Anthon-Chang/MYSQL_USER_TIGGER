@@ -1,0 +1,94 @@
+create database empresa;
+use empresa;
+
+create table empleados(
+	emp_id int auto_increment primary key,
+    nombre varchar(30),
+    departamento varchar(20),
+    salario decimal (5,2)
+);
+
+create table auditoria(
+	aud_id int auto_increment primary key,
+    accion enum ('insert', 'update', 'delete'),
+    emp_id int,
+    nombre varchar (20),
+	departamento varchar(20),
+    salario decimal (5,2),
+    Fecha DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- TIGGERS
+-- TIGGER INSERT
+delimiter // -- En esta version se necesita un delimiter entre los tiggers
+create trigger insertar
+after insert on empleados -- se ejecuta después de un insert en la tabla empleados
+for each row -- para cada fila afectada por la operación
+begin
+  -- inserta un registro en la tabla auditoria con la información del nuevo empleado
+  insert into auditoria (accion, emp_id, nombre, departamento, salario, fecha)
+  values (
+    'insert', -- tipo de operación realizada (en este caso, insert)
+    new.emp_id, -- id del empleado recién agregado
+    new.nombre, -- nombre del empleado recién agregado
+    new.departamento, -- departamento del empleado recién agregado
+    new.salario, -- salario del empleado recién agregado
+    now() -- fecha y hora actuales
+  );
+end //
+delimiter ;
+
+-- TIGGER UPDATE
+delimiter //
+create trigger actualizar
+after update on empleados -- se ejecuta después de un update en la tabla empleados
+for each row -- para cada fila afectada por la operación
+begin
+  -- inserta un registro en la tabla auditoria con la información actualizada del empleado
+  insert into auditoria (accion, emp_id, nombre, departamento, salario, fecha)
+  values (
+    'update', -- tipo de operación realizada (en este caso, update)
+    new.emp_id, -- id del empleado que fue actualizado
+    new.nombre, -- nombre actualizado del empleado
+    new.departamento, -- departamento actualizado del empleado
+    new.salario, -- salario actualizado del empleado
+    now() -- fecha y hora actuales
+  );
+end //
+delimiter ;
+
+-- TIGGER DELETE
+delimiter //
+create trigger eliminar
+after delete on empleados -- se ejecuta después de un delete en la tabla empleados
+for each row -- para cada fila afectada por la operación
+begin
+  -- inserta un registro en la tabla auditoria con la información del empleado eliminado
+  insert into auditoria (accion, emp_id, nombre, departamento, salario, fecha)
+  values (
+    'delete', -- tipo de operación realizada (en este caso, delete)
+    old.emp_id, -- id del empleado eliminado
+    old.nombre, -- nombre del empleado eliminado
+    old.departamento, -- departamento del empleado eliminado
+    old.salario, -- salario del empleado eliminado
+    now() -- fecha y hora actuales
+  );
+end //
+delimiter ;
+
+-- COMPROBAR LOS TIGGERS
+-- 1. Insertar un nuevo empleado
+INSERT INTO empleados (nombre, departamento, salario)
+VALUES ('Juan Pérez', 'Ventas', 350.00);
+
+-- 2. Actualizar la información de un empleado
+UPDATE empleados
+SET salario = 400.00
+WHERE emp_id = 1;
+
+-- 3. Eliminar un empleado
+DELETE FROM empleados
+WHERE emp_id = 1;
+
+-- 4. Verificar los registros en la tabla de auditoría
+SELECT * FROM auditoria;
