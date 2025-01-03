@@ -1,0 +1,24 @@
+-- USUARIOS
+create user 'super_administrador'@'localhost' identified by '01';
+create user 'administrador'@'localhost' identified by '02';
+create user 'crud'@'localhost' identified by '03';
+create user 'cru'@'localhost' identified by '04';
+create user 'lectura'@'localhost' identified  by '05';
+
+-- PRIVILEGIOS
+grant create, drop on *.* to 'super_administrador'@'localhost';
+grant create user, process on *.* to 'administrador'@'localhost';
+grant insert, update, drop on *.* to 'crud'@'localhost';
+grant insert, update on *.* to 'cru'@'localhost';
+grant select on *.* to 'lectura'@'localhost';
+
+-- GUARDAR PRIVILEGIOS
+flush privileges;
+
+-- VERIFICAR PRIVILEGIOS
+SHOW GRANTS FOR 'super_administrador'@'localhost';
+SHOW GRANTS FOR 'administrador'@'localhost';
+SHOW GRANTS FOR 'crud'@'localhost';
+SHOW GRANTS FOR 'cru'@'localhost';
+SHOW GRANTS FOR 'lectura'@'localhost';
+
